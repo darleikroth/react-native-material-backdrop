@@ -9,6 +9,6 @@ module.exports = {
     return require('react-native-vector-icons/MaterialCommunityIcons').default
   },
   get Utils() {
-    return require('rn-apps-utils')
+    return require('rn-apps-utils').default
   }
 }

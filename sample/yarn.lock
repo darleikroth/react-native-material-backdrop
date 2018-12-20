@@ -2405,6 +2405,11 @@ has@^1.0.1:
   dependencies:
     function-bind "^1.1.1"
 
+hoist-non-react-statics@^2.3.1:
+  version "2.5.5"
+  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
+  integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
+
 home-or-tmp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/home-or-tmp/-/home-or-tmp-2.0.0.tgz#e36c3f2d2cae7d746a857e38d18d5f32a7882db8"
@@ -4542,6 +4547,27 @@ react-is@^16.6.3:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.7.0.tgz#c1bd21c64f1f1364c6f70695ec02d69392f41bfa"
   integrity sha512-Z0VRQdF4NPDoI0tsXVMLkJLiwEBa+RP66g0xDHxgxysxSoCUccSten4RTF/UFvZF1dZvZ9Zu1sx+MDXwcOR34g==
 
+react-native-material-backdrop@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-material-backdrop/-/react-native-material-backdrop-1.0.0.tgz#a2f52a1e0c34f3e3800ed6085d59e2253cf569ed"
+  integrity sha512-3ie1QAY90TaRCAD+XTiHqAD4dfRextMRkcx7Yvuw0n/vkqS0on75rFrl0/NsqVhDAEEET3OngYxixNfrUUvZjA==
+  dependencies:
+    react-native-platform-touchable "^1.1.1"
+    react-native-safe-area-view "^0.11.0"
+    rn-apps-utils "^1.0.3"
+
+react-native-platform-touchable@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-platform-touchable/-/react-native-platform-touchable-1.1.1.tgz#fde4acc65eea585d28b164d0c3716a42129a68e4"
+  integrity sha1-/eSsxl7qWF0osWTQw3FqQhKaaOQ=
+
+react-native-safe-area-view@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.11.0.tgz#4f3dda43c2bace37965e7c6aef5fc83d4f19d174"
+  integrity sha512-N3nElaahu1Me2ltnfc9acpgt1znm6pi8DSadKy79kvdzKwvVIzw0IXueA/Hjr51eCW1BsfNw7D1SgBT9U6qEkA==
+  dependencies:
+    hoist-non-react-statics "^2.3.1"
+
 react-native-vector-icons@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-6.1.0.tgz#770a3f8ced692d75deb3afbb9829195ceed1eedd"
@@ -4899,6 +4925,11 @@ rimraf@~2.2.6:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
   integrity sha1-5Dm+Kq7jJzIZUnMPmaiSnk/FBYI=
+
+rn-apps-utils@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/rn-apps-utils/-/rn-apps-utils-1.0.3.tgz#9a58a12d8899881dbb36cf753b7a1c9931c91842"
+  integrity sha512-oirkzuSo5MnIRvKhWnyLsAGa7NDUcmIfRKJ9drgW/flAxXeZJz6epJD7kvonk3qcsPxaWimwk7ZqsEoeL9U85A==
 
 rsvp@^3.3.3:
   version "3.6.2"
