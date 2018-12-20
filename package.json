@@ -2,7 +2,7 @@
   "name": "react-native-material-backdrop",
   "version": "1.0.0",
   "description": "Backdrop component for React Native, based on Material Design guidelines.",
-  "main": "index.js",
+  "main": "src/backdrop.js",
   "author": "Darlei Kroth <darlei@pm.me> (https://github.com/darleikroth)",
   "license": "MIT",
   "private": false,
@@ -28,6 +28,6 @@
   "dependencies": {
     "react-native-safe-area-view": "^0.11.0",
     "react-native-platform-touchable": "^1.1.1",
-    "rn-apps-utils": "^1.0.0"
+    "rn-apps-utils": "^1.0.3"
   }
 }
