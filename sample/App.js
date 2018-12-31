@@ -37,7 +37,10 @@ export default class App extends Component<Props> {
           ref={ref => this.backdrop = ref}
           backLayerStyle={{backgroundColor: '#05a5d1'}}
           backLayerConcealed={this.renderBackLayerConcealed}
-          backLayerRevealed={this.renderBackLayerRevealed} >
+          backRevealedElementsConfig={[
+            {el: this.renderBackLayerRevealed, offset: 260}
+          ]}
+          frontLayerStyle={{backgroundColor: 'white'}} >
 
           <View style={styles.container}>
             <Text style={styles.welcome}>Welcome to React Native and Backdrop!</Text>
@@ -52,18 +55,8 @@ export default class App extends Component<Props> {
 
   renderBackLayerConcealed = () => {
     return (
-      <View style={{
-        height: 56,
-        flexDirection: 'row',
-        alignItems: 'center',
-      }} >
-        <Text style={{
-          fontSize: IOS ? 17 : 19,
-          fontWeight: IOS ? '600' : '500',
-          textAlign: IOS ? 'center' : 'left',
-          color: 'white',
-          marginLeft: 72
-        }} >Title</Text>
+      <View style={styles.backdropHeader} >
+        <Text style={styles.backdropHeaderTitle} >Title</Text>
       </View>
     )
   }
@@ -71,24 +64,10 @@ export default class App extends Component<Props> {
   renderBackLayerRevealed = () => {
     return (
       <View style={{ flex: 1 }} >
-        <View style={{
-          height: 56,
-          flexDirection: 'row',
-          alignItems: 'center',
-        }} >
-          <Text style={{
-            fontSize: IOS ? 17 : 19,
-            fontWeight: IOS ? '600' : '500',
-            textAlign: IOS ? 'center' : 'left',
-            color: 'white',
-            marginLeft: 72
-          }} >Settings</Text>
+        <View style={styles.backdropHeader} >
+          <Text style={styles.backdropHeaderTitle} >Settings</Text>
         </View>
-        <Text style={{
-          color: 'white',
-          alignSelf: 'center',
-          marginTop: 100
-        }} >Content</Text>
+        <Text style={styles.contentText} >Content</Text>
       </View>
     )
   }
@@ -112,4 +91,21 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  contentText: {
+    color: 'white',
+    alignSelf: 'center',
+    marginTop: 100
+  },
+  backdropHeader: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backdropHeaderTitle: {
+    fontSize: IOS ? 17 : 19,
+    fontWeight: IOS ? '600' : '500',
+    textAlign: IOS ? 'center' : 'left',
+    color: 'white',
+    marginLeft: 72
+  }
 })
