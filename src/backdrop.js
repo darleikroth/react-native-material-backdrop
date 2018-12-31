@@ -12,7 +12,18 @@ import {
 } from 'react-native'
 import { Icon, SafeAreaView, Touchable, Utils } from './utils'
 
-interface Props {
+type ElementsConfigI = {
+  /**
+   * Element that is rendered on back layer when revealed.
+   */
+  el?: () => JSX.Element;
+  /**
+   * The offset from the top, when revealed.
+   */
+  offset?: number;
+}
+
+type Props = {
   /**
    * If `true`, the buttonActivator will not be rendered. Default is `false`.
    */
@@ -30,9 +41,17 @@ interface Props {
    */
   backLayerRevealed?: () => JSX.Element;
   /**
+   * Use this to configure multiples elements to render when back layer is revealed.
+   */
+  backRevealedElementsConfig?: ElementsConfigI[];
+  /**
    * Container styles for back layer.
    */
   backLayerStyle?: ViewStyle;
+  /**
+   * Container styles for front layer.
+   */
+  frontLayerStyle?: ViewStyle;
   /**
    * The action button ripple color on pressed (Android).
    */
@@ -55,6 +74,14 @@ interface Props {
    */
   initialOffset?: number;
   /**
+   * Event dispatched when revealed.
+   */
+  onReveal?: () => void;
+  /**
+   * Event dispatched when concealed.
+   */
+  onConceal?: () => void;
+  /**
    * Element that is rendered on front layer.
    */
   children?: JSX.Element;
@@ -62,7 +89,7 @@ interface Props {
 
 const IOS = Platform.OS === 'ios'
 
-export default class Backdrop extends React.Component<Props> {
+export default class Backdrop extends React.PureComponent<Props> {
 
   static defaultProps: Props = {
     offsetType: 'half',
@@ -70,6 +97,13 @@ export default class Backdrop extends React.Component<Props> {
     buttonRippleColor: 'rgba(255,255,255,0.3)',
     buttonActivatorDisabled: false
   }
+
+  state = {
+    backConcealed: true,
+    backRevealed: false,
+    iconName: 'menu',
+    elementIndex: 0,
+}
 
   constructor(props: Props) {
     super(props)
@@ -79,12 +113,18 @@ export default class Backdrop extends React.Component<Props> {
       isLandscape: Utils.isOrientationLandscape(window),
       backConcealed: true,
       backRevealed: false,
-      iconName: 'menu'
+      iconName: 'menu',
+      elementIndex: 0,
+      lastIndex: 0,
+      nextIndex: 0
     }
   }
 
   animate = new Animated.Value(0)
   spinValue = new Animated.Value(0)
+  internalAnimate = new Animated.Value(0)
+  internalOffsetAnimate = new Animated.Value(0)
+  isInternalAnimate = false
 
   componentDidMount() {
     Dimensions.addEventListener('change', this.handleOrientationChange)
@@ -107,10 +147,12 @@ export default class Backdrop extends React.Component<Props> {
     }
 
     if (backConcealed) {
-      this.setState({ backRevealed: true })
+      this.setState({ backRevealed: true, nextIndex: 0, lastIndex: 0 })
     } else {
-      this.setState({ backConcealed: true })
+      this.setState({ backConcealed: true, nextIndex: 0, lastIndex: 0 })
     }
+
+    this.isInternalAnimate = false
 
     Animated.timing(this.animate, {
       toValue: backConcealed ? 1 : 0,
@@ -119,31 +161,62 @@ export default class Backdrop extends React.Component<Props> {
       useNativeDriver: !IOS
     }).start(() => {
       if (backConcealed) {
-        this.setState({ backConcealed: false })
+        this.setState({ backConcealed: false, elementIndex: 0 })
+        this.props.onReveal && this.props.onReveal()
       } else {
-        this.setState({ backRevealed: false })
+        this.setState({ backRevealed: false, elementIndex: 0 })
+        this.props.onConceal && this.props.onConceal()
       }
     })
     Animated.timing(this.spinValue, {
       toValue: 0.5,
-      duration: 96,
+      duration: 94,
       easing: Easing.linear,
       useNativeDriver: !IOS
     }).start(() => {
       this.setState({ iconName: backConcealed ? 'close' : 'menu' })
       Animated.timing(this.spinValue, {
         toValue: backConcealed ? 1 : 0,
-        duration: 96,
+        duration: 94,
         easing: Easing.linear,
         useNativeDriver: !IOS
       }).start()
     })
   }
 
+  animateTo(i) {
+    this.internalAnimate.setValue(0)
+    this.isInternalAnimate = true
+    this.setState({lastIndex: this.state.elementIndex, nextIndex: i})
+
+    Animated.timing(this.internalAnimate, {
+      toValue: 0.5,
+      duration: 98,
+      easing: Easing.ease,
+      useNativeDriver: !IOS
+    }).start(() => {
+      this.setState({ elementIndex: i })
+      Animated.timing(this.internalAnimate, {
+        toValue: 1,
+        duration: 98,
+        easing: Easing.ease,
+        useNativeDriver: !IOS
+      }).start()
+    })
+
+    this.internalOffsetAnimate.setValue(0)
+    Animated.timing(this.internalOffsetAnimate, {
+      toValue: 1,
+      duration: 196,
+      easing: Easing.ease,
+      useNativeDriver: !IOS
+    }).start()
+  }
+
   render() {
     const height = this.getStatusBarHeight()
     return (
-      <SafeAreaView style={[styles.backLayer, this.props.backLayerStyle]} >
+      <SafeAreaView style={[styles.backLayerContainer, this.props.backLayerStyle]} >
         {this.renderBackLayerConcealed(height)}
         {this.renderBackLayerRevealed(height)}
         {this.renderFrontLayer()}
@@ -153,20 +226,15 @@ export default class Backdrop extends React.Component<Props> {
   }
 
   renderFrontLayer = () => {
-    const offset = this.getOffset(),
-    translateY = this.animate.interpolate({
-      inputRange: [0, 1],
-      outputRange: [this.props.initialOffset, offset]
-    })
+    const translateY = this.getFrontLayerTranslateY()
 
     return (
-      <Animated.View style={[{
-        flex: 1,
-        transform: [{translateY}],
-        backgroundColor: '#FAFAFA',
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-      }, elevationStyle]} >
+      <Animated.View style={[
+        styles.frontLayerContainer,
+        elevationStyle,
+        this.props.frontLayerStyle,
+        {transform: [{translateY}]}
+      ]} >
         {this.props.children}
         {this.renderScrimLayer()}
       </Animated.View>
@@ -183,11 +251,7 @@ export default class Backdrop extends React.Component<Props> {
       outputRange: [1, md, 0]
     })
     return (
-      <Animated.View style={{
-        opacity,
-        position: 'absolute',
-        top: 0, right: 0, bottom: 0, left: 0,
-      }} >
+      <Animated.View style={[styles.backLayer, {opacity}]} >
         {this.renderHeaderEdge(statusBarHeight)}
         {this.props.backLayerConcealed()}
       </Animated.View>
@@ -195,7 +259,7 @@ export default class Backdrop extends React.Component<Props> {
   }
 
   renderBackLayerRevealed = statusBarHeight => {
-    if (!this.props.backLayerRevealed || !this.state.backRevealed) {
+    if (!this.props.backRevealedElementsConfig.length || !this.state.backRevealed) {
       return null
     }
     const md = this.state.backRevealed ? 0 : 1
@@ -203,14 +267,25 @@ export default class Backdrop extends React.Component<Props> {
       inputRange: [0, 0.6, 1],
       outputRange: [0, md, 1]
     })
+
     return (
-      <Animated.View style={{
-        opacity,
-        position: 'absolute',
-        top: 0, right: 0, bottom: 0, left: 0
-      }} >
+      <Animated.View style={[styles.backLayer, {opacity}]} >
         {this.renderHeaderEdge(statusBarHeight)}
-        {this.props.backLayerRevealed()}
+        {this.renderBackElements()}
+      </Animated.View>
+    )
+  }
+
+  renderBackElements = () => {
+    const elementsConfig = this.props.backRevealedElementsConfig, i = this.state.elementIndex
+    const opacity = this.internalAnimate.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [1, 0, 1]
+    })
+
+    return (
+      <Animated.View style={{flex: 1, opacity}} >
+        {elementsConfig[i].el()}
       </Animated.View>
     )
   }
@@ -253,7 +328,7 @@ export default class Backdrop extends React.Component<Props> {
       <Animated.View style={style} >
         <Touchable
           activeOpacity={0.6}
-          foreground={Touchable.Ripple(this.props.buttonRippleColor, true)}
+          background={Touchable.Ripple(this.props.buttonRippleColor, true)}
           onPress={() => this.toggleLayout()}
           style={styles.activatorTouchable} >
           <Icon
@@ -274,7 +349,31 @@ export default class Backdrop extends React.Component<Props> {
     return (this.state.isLandscape || !IOS) ? 0 : Utils.isIphoneX(this.state.window) ? 44 : 20
   }
 
+  getFrontLayerTranslateY = () => {
+    if (this.isInternalAnimate) {
+      const elements = this.props.backRevealedElementsConfig,
+      v1 = elements[this.state.lastIndex].offset,
+      v2 = elements[this.state.nextIndex].offset
+      return this.internalOffsetAnimate.interpolate({
+        inputRange: [0, 1],
+        outputRange: [v1, v2]
+      })
+    }
+    const offset = this.getOffset()
+    return this.animate.interpolate({
+      inputRange: [0, 1],
+      outputRange: [this.props.initialOffset, offset]
+    })
+  }
+
   getOffset = () => {
+    const elementsConfig = this.props.backRevealedElementsConfig,
+    elementIndex = this.state.elementIndex
+
+    if (elementsConfig.length && elementsConfig[elementIndex].offset) {
+      return elementsConfig[elementIndex].offset
+    }
+
     if (this.props.offset) {
       return this.props.offset
     }
@@ -289,9 +388,19 @@ export default class Backdrop extends React.Component<Props> {
 }
 
 const styles = StyleSheet.create({
-  backLayer: {
+  backLayerContainer: {
     flex: 1,
     backgroundColor: 'blue'
+  },
+  frontLayerContainer: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  backLayer: {
+    position: 'absolute',
+    top: 0, right: 0, bottom: 0, left: 0,
   },
   activator: {
     height: 56,
@@ -302,9 +411,8 @@ const styles = StyleSheet.create({
     left: 0,
   },
   activatorTouchable: {
-    height: 30,
-    width: 30,
-    borderRadius: 15,
+    height: 32,
+    width: 32,
     justifyContent: 'center'
   },
   activatorIcon: {

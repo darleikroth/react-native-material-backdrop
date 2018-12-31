@@ -7,10 +7,14 @@ Material Backdrop component for React Native, based on [Material Design](https:/
 
 ### Install
 
+1. Before install this, please install and configure [react-native-vector-icons](https://github.com/oblador/react-native-vector-icons#installation).
+
+2. Installation:
+
 ```
 npm i --save react-native-material-backdrop
 ```
-OR
+or
 ```
 yarn add react-native-material-backdrop
 ```
