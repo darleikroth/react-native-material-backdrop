@@ -4547,10 +4547,10 @@ react-is@^16.6.3:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.7.0.tgz#c1bd21c64f1f1364c6f70695ec02d69392f41bfa"
   integrity sha512-Z0VRQdF4NPDoI0tsXVMLkJLiwEBa+RP66g0xDHxgxysxSoCUccSten4RTF/UFvZF1dZvZ9Zu1sx+MDXwcOR34g==
 
-react-native-material-backdrop@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-material-backdrop/-/react-native-material-backdrop-1.0.0.tgz#a2f52a1e0c34f3e3800ed6085d59e2253cf569ed"
-  integrity sha512-3ie1QAY90TaRCAD+XTiHqAD4dfRextMRkcx7Yvuw0n/vkqS0on75rFrl0/NsqVhDAEEET3OngYxixNfrUUvZjA==
+react-native-material-backdrop@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-material-backdrop/-/react-native-material-backdrop-1.0.1.tgz#1fdd141cdda7b2b86a1dd0406926d28bb7410fa4"
+  integrity sha512-9uVfEoKUHq+XzfVVMgvK64NVM+7fsd4S65Qu64p1G3BvTgJp9acNsSROO4DZnHafZOS6U6uBerhpsr7nsRm/Vw==
   dependencies:
     react-native-platform-touchable "^1.1.1"
     react-native-safe-area-view "^0.11.0"

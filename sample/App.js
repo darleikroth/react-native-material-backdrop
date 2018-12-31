@@ -7,10 +7,11 @@
  */
 
 import React, {Component} from 'react'
-import {Platform, StyleSheet, Text, View} from 'react-native'
+import {Platform, UIManager, StyleSheet, Text, View} from 'react-native'
 import Backdrop from 'react-native-material-backdrop'
 
-const IOS = Platform.OS === 'ios'
+const IOS = Platform.OS === 'ios',
+animationExperimental = UIManager.setLayoutAnimationEnabledExperimental
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -21,15 +22,13 @@ const instructions = Platform.select({
 
 type Props = {}
 export default class App extends Component<Props> {
-  // render() {
-  //   return (
-  //     <View style={styles.container}>
-  //       <Text style={styles.welcome}>Welcome to React Native and Backdrop!</Text>
-  //       <Text style={styles.instructions}>To get started, edit App.js</Text>
-  //       <Text style={styles.instructions}>{instructions}</Text>
-  //     </View>
-  //   )
-  // }
+  constructor() {
+    super()
+    if (!IOS && !!animationExperimental) {
+      animationExperimental(true)
+    }
+  }
+
   render() {
     return (
       <View style={{flex: 1}} >
@@ -98,7 +97,7 @@ export default class App extends Component<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 48,
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
     paddingHorizontal: 32,
