@@ -40,7 +40,7 @@ export default class App extends Component<Props> {
           backRevealedElementsConfig={[
             {el: this.renderBackLayerRevealed, offset: 260}
           ]}
-          frontLayerStyle={{backgroundColor: 'white'}} >
+          frontLayerStyle={{backgroundColor: '#F5FCFF'}} >
 
           <View style={styles.container}>
             <Text style={styles.welcome}>Welcome to React Native and Backdrop!</Text>
@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 48,
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
     paddingHorizontal: 32,
   },
   welcome: {
