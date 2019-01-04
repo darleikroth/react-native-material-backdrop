@@ -18,9 +18,13 @@ type ElementsConfigI = {
    */
   el?: () => JSX.Element;
   /**
-   * The offset from the top, when revealed.
+   * The offset from the top, when revealed. Default `offset` or `offsetType` from Backdrop props.
    */
   offset?: number;
+  /**
+   * Default is `false`.
+   */
+  closeOnConceal?: boolean;
 }
 
 type Props = {
@@ -62,9 +66,9 @@ type Props = {
   buttonActivatorStyle?: ViewStyle;
   /**
    * If `half`, when revealed, offset from top goes until to the middle of screen. If `full`, when revealed,
-   * offset from top goes until to the bottom of screen. Default is `half`.
+   * offset from top goes until to the bottom of screen. Default is `full`.
    */
-  offsetType?: "half" | "full";
+  offsetType?: "full" | "half";
   /**
    * The offset from the top, when revealed. This property overrides `offsetType`.
    */
@@ -92,18 +96,11 @@ const IOS = Platform.OS === 'ios'
 export default class Backdrop extends React.PureComponent<Props> {
 
   static defaultProps: Props = {
-    offsetType: 'half',
+    offsetType: 'full',
     initialOffset: 56,
     buttonRippleColor: 'rgba(255,255,255,0.3)',
     buttonActivatorDisabled: false
   }
-
-  state = {
-    backConcealed: true,
-    backRevealed: false,
-    iconName: 'menu',
-    elementIndex: 0,
-}
 
   constructor(props: Props) {
     super(props)
@@ -139,6 +136,10 @@ export default class Backdrop extends React.PureComponent<Props> {
     this.setState({ isLandscape, window })
   }
 
+  setElementIndex(elementIndex) {
+    this.state.backConcealed && this.setState({elementIndex})
+  }
+
   toggleLayout() {
     const { backConcealed, backRevealed } = this.state
 
@@ -147,9 +148,9 @@ export default class Backdrop extends React.PureComponent<Props> {
     }
 
     if (backConcealed) {
-      this.setState({ backRevealed: true, nextIndex: 0, lastIndex: 0 })
+      this.setState({ backRevealed: true })
     } else {
-      this.setState({ backConcealed: true, nextIndex: 0, lastIndex: 0 })
+      this.setState({ backConcealed: true })
     }
 
     this.isInternalAnimate = false
@@ -161,10 +162,15 @@ export default class Backdrop extends React.PureComponent<Props> {
       useNativeDriver: !IOS
     }).start(() => {
       if (backConcealed) {
-        this.setState({ backConcealed: false, elementIndex: 0 })
+        this.setState({ backConcealed: false })
         this.props.onReveal && this.props.onReveal()
       } else {
-        this.setState({ backRevealed: false, elementIndex: 0 })
+        const close = this.props.backRevealedElementsConfig[this.state.elementIndex].closeOnConceal
+        this.setState({
+          backRevealed: false,
+          elementIndex: close ? this.state.lastIndex : this.state.elementIndex,
+          lastIndex: close ? this.state.elementIndex : this.state.lastIndex
+        })
         this.props.onConceal && this.props.onConceal()
       }
     })
@@ -296,14 +302,9 @@ export default class Backdrop extends React.PureComponent<Props> {
     }
     return (
       <TouchableWithoutFeedback onPress={() => this.toggleLayout()} >
-        <Animated.View style={{
-          opacity: this.animate,
-          position: 'absolute',
-          top: 0, right: 0, bottom: 0, left: 0,
-          backgroundColor: 'rgba(255,255,255,0.8)',
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-        }} />
+        <Animated.View style={[styles.scrimLayer, {opacity: this.animate}]} >
+          <Icon name='chevron-up' size={24} color='rgba(0,0,0,0.56)' style={styles.scrimLayerIcon} />
+        </Animated.View>
       </TouchableWithoutFeedback>
     )
   }
@@ -352,8 +353,8 @@ export default class Backdrop extends React.PureComponent<Props> {
   getFrontLayerTranslateY = () => {
     if (this.isInternalAnimate) {
       const elements = this.props.backRevealedElementsConfig,
-      v1 = elements[this.state.lastIndex].offset,
-      v2 = elements[this.state.nextIndex].offset
+      v1 = elements[this.state.lastIndex].offset || this.getOffset(true),
+      v2 = elements[this.state.nextIndex].offset || this.getOffset(true)
       return this.internalOffsetAnimate.interpolate({
         inputRange: [0, 1],
         outputRange: [v1, v2]
@@ -366,11 +367,11 @@ export default class Backdrop extends React.PureComponent<Props> {
     })
   }
 
-  getOffset = () => {
+  getOffset = (ignoreElement = false) => {
     const elementsConfig = this.props.backRevealedElementsConfig,
     elementIndex = this.state.elementIndex
 
-    if (elementsConfig.length && elementsConfig[elementIndex].offset) {
+    if (!ignoreElement && elementsConfig.length && elementsConfig[elementIndex].offset) {
       return elementsConfig[elementIndex].offset
     }
 
@@ -418,6 +419,17 @@ const styles = StyleSheet.create({
   activatorIcon: {
     marginTop: IOS ? 2 : 0,
     alignSelf: 'center'
+  },
+  scrimLayer: {
+    position: 'absolute',
+    top: 0, right: 0, bottom: 0, left: 0,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16
+  },
+  scrimLayerIcon: {
+    position: 'absolute',
+    top: 12, right: 16
   }
 })
 
