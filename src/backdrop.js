@@ -256,8 +256,10 @@ export default class Backdrop extends React.PureComponent<Props> {
       inputRange: [0, 0.6, 1],
       outputRange: [1, md, 0]
     })
+    const marginStyle = this.getMarginIphoneX()
+
     return (
-      <Animated.View style={[styles.backLayer, {opacity}]} >
+      <Animated.View style={[styles.backLayer, {opacity}, marginStyle]} >
         {this.renderHeaderEdge(statusBarHeight)}
         {this.props.backLayerConcealed()}
       </Animated.View>
@@ -273,9 +275,10 @@ export default class Backdrop extends React.PureComponent<Props> {
       inputRange: [0, 0.6, 1],
       outputRange: [0, md, 1]
     })
+    const marginStyle = this.getMarginIphoneX()
 
     return (
-      <Animated.View style={[styles.backLayer, {opacity}]} >
+      <Animated.View style={[styles.backLayer, {opacity}, marginStyle]} >
         {this.renderHeaderEdge(statusBarHeight)}
         {this.renderBackElements()}
       </Animated.View>
@@ -320,7 +323,7 @@ export default class Backdrop extends React.PureComponent<Props> {
     })
     const style = [
       styles.activator,
-      { top: topOffset },
+      { top: topOffset, left: this.getMarginIphoneX().left },
       this.props.buttonActivatorStyle,
       { transform: [{ rotate: spin }] }
     ]
@@ -386,6 +389,14 @@ export default class Backdrop extends React.PureComponent<Props> {
     const y = Utils.isIphoneX(this.state.window, IOS) ? 44 : IOS ? 20 : 24
     return y + this.props.initialOffset
   }
+
+  getMarginIphoneX = () => {
+    const hasMargin = this.state.isLandscape && Utils.isIphoneX(this.state.window, IOS)
+    return {
+      left: hasMargin ? 44 : 0,
+      right: hasMargin ? 44 : 0
+    }
+  }
 }
 
 const styles = StyleSheet.create({
@@ -401,7 +412,8 @@ const styles = StyleSheet.create({
   },
   backLayer: {
     position: 'absolute',
-    top: 0, right: 0, bottom: 0, left: 0,
+    top: 0,
+    bottom: 0
   },
   activator: {
     height: 56,
@@ -409,7 +421,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    left: 0,
   },
   activatorTouchable: {
     height: 32,
